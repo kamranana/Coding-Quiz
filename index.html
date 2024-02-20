@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-gray-200 flex justify-center items-center h-screen">
+  <div id="app" class="bg-white text-center p-10 rounded-lg shadow-xl" style="width: 600px;">
+    <div v-if="!started && !gameOver">
+      <button @click="startGame" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Start</button>
+    </div>
+    <div v-if="started && !gameOver">
+      <p>Time: <span>{{ timer }}</span></p>
+      <div v-if="currentQuestionIndex < questions.length" key="question">
+        <p>{{ questions[currentQuestionIndex].text }}</p>
+        <div v-for="(answer, index) in questions[currentQuestionIndex].answers" :key="index">
+          <button @click="submitAnswer(answer)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-2 rounded focus:outline-none focus:shadow-outline">{{ answer.text }}</button>
+        </div>
+      </div>
+      <div v-else>
+        <p>All done!</p>
+        <p>Your final score is {{ score }}.</p>
+        <p>Enter initials: <input v-model="initials" class="border-2 border-blue-500"/></p>
+        <button @click="saveScore" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit</button>
+      </div>
+    </div>
+    <div v-if="gameOver">
+      <p>Game over! Your final score is {{ score }}.</p>
+      <p>Enter initials: <input v-model="initials" class="border-2 border-blue-500"/></p>
+      <button @click="saveScore" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit</button>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        started: false,
+        gameOver: false,
+        timer: null,
+        score: 0,
+        initials: '',
+        questions: [
+          {
+            text: "Commonly used data types do NOT include:",
+            answers: [
+              { text: "strings", correct: false },
+              { text: "booleans", correct: false },
+              { text: "alerts", correct: true },
+              { text: "numbers", correct: false }
+            ]
+          }
+          // Add more questions as needed
+        ],
+        currentQuestionIndex: 0
+      },
+      methods: {
+        startGame() {
+          this.started = true;
+          this.score = 0;
+          this.timer = 60; // Set timer as needed
+          this.tick();
+        },
+        tick() {
+          if(this.timer > 0) {
+            setTimeout(() => {
+              this.timer--;
+              this.tick();
+            }, 1000);
+          } else {
+            this.endGame();
+          }
+        },
+        submitAnswer(answer) {
+          if(answer.correct) {
+            this.score++;
+          } else {
+            this.timer -= 10; // Subtract time for incorrect answer
+          }
+          this.currentQuestionIndex++;
+          if(this.currentQuestionIndex >= this.questions.length) {
+            this.endGame();
+          }
+        },
+        endGame() {
+          this.gameOver = true;
+          this.started = false;
+        },
+        saveScore() {
+          // Implement score saving logic
+          alert(`Score saved for ${this.initials}: ${this.score}`);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
